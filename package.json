@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^6.0.9"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
   }
 }

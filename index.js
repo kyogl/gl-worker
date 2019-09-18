@@ -5,11 +5,13 @@ const { spawn } = require('child_process')
 // 垃圾回收的时候，window对象将会自动的关闭
 let win
 
+require('./src/workspace');
+
 function createWindow () {
   // 创建浏览器窗口。
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       nodeIntegration: true
     }
@@ -17,7 +19,9 @@ function createWindow () {
 
   // 加载index.html文件
   win.loadFile('./index.html')
-  spawn(__dirname+'/server')
+
+  //启动服务进程
+  // spawn(__dirname+'/server')
 
   // 打开开发者工具
   win.webContents.openDevTools()
