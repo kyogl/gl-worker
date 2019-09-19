@@ -114,8 +114,8 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
   event.reply('createWorkspaceFileDone');
 });
 
-ipcMain.on('readWorkspaceFile', (event, arg)=>{
-  let pathArgs = arg.replace(/\\/g, '/').split('/');
+const getUiPath = function(fPath) {
+  let pathArgs = fPath.replace(/\\/g, '/').split('/');
   let uiArgs = [];
   _.forEach(pathArgs, (item, index)=>{
     if (index==pathArgs.length-1) {
@@ -123,7 +123,11 @@ ipcMain.on('readWorkspaceFile', (event, arg)=>{
     };
     uiArgs.push(item);
   });
-  let fUiPath = path.join(...uiArgs);
+  return path.join(...uiArgs);
+};
+
+ipcMain.on('readWorkspaceFile', (event, arg)=>{
+  let fUiPath = getUiPath(arg);
   const str = fs.readFileSync(fUiPath,'utf-8');
   if (!str) {
     event.reply('readWorkspaceFileDone', {
@@ -146,16 +150,15 @@ ipcMain.on('saveWorkspaceFile', (event, arg)=>{
     ui,
     compile
   } = arg;
-  let pathArgs = fPath.replace(/\\/g, '/').split('/');
-  let uiArgs = [];
-  _.forEach(pathArgs, (item, index)=>{
-    if (index==pathArgs.length-1) {
-      uiArgs.push('.cache');
-    };
-    uiArgs.push(item);
-  });
-  let fUiPath = path.join(...uiArgs);
+  let fUiPath = getUiPath(fPath);
   fs.writeFileSync(fPath, JSON.stringify(compile));
   fs.writeFileSync(fUiPath, JSON.stringify(ui));
   event.reply('saveWorkspaceFileDone');
+});
+
+ipcMain.on('deleteWorkspaceFile', (event, arg)=>{
+  let fUiPath = getUiPath(arg);
+  fs.unlinkSync(arg);
+  fs.unlinkSync(fUiPath);
+  event.reply('deleteWorkspaceFileDone');
 });
