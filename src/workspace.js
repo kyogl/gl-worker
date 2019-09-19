@@ -107,8 +107,9 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
   const {
     workspacePath, fileName
   } = arg;
-  let fPath = path.join(workspacePath, fileName);
-  let fUiPath = path.join(workspacePath, './.cache/', fileName);
+  let fName = fileName+'.gl';
+  let fPath = path.join(workspacePath, fName);
+  let fUiPath = path.join(workspacePath, './.cache/', fName);
   fs.writeFileSync(fPath, '');
   fs.writeFileSync(fUiPath, '');
   event.reply('createWorkspaceFileDone');
