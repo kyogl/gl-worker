@@ -108,5 +108,54 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
     workspacePath, fileName
   } = arg;
   let fPath = path.join(workspacePath, fileName);
-  console.log(fPath);
+  let fUiPath = path.join(workspacePath, './.cache/', fileName);
+  fs.writeFileSync(fPath, '');
+  fs.writeFileSync(fUiPath, '');
+  event.reply('createWorkspaceFileDone');
+});
+
+ipcMain.on('readWorkspaceFile', (event, arg)=>{
+  let pathArgs = arg.replace(/\\/g, '/').split('/');
+  let uiArgs = [];
+  _.forEach(pathArgs, (item, index)=>{
+    if (index==pathArgs.length-1) {
+      uiArgs.push('.cache');
+    };
+    uiArgs.push(item);
+  });
+  let fUiPath = path.join(...uiArgs);
+  const str = fs.readFileSync(fUiPath,'utf-8');
+  if (!str) {
+    event.reply('readWorkspaceFileDone', {
+      nodes: [],
+      edges: [],
+    });
+    return;
+  };
+  try {
+    let json = JSON.parse(str);
+    event.reply('readWorkspaceFileDone', json);
+  } catch(e) {
+    console.log(e);
+  }
+});
+
+ipcMain.on('saveWorkspaceFile', (event, arg)=>{
+  const {
+    path: fPath,
+    ui,
+    compile
+  } = arg;
+  let pathArgs = fPath.replace(/\\/g, '/').split('/');
+  let uiArgs = [];
+  _.forEach(pathArgs, (item, index)=>{
+    if (index==pathArgs.length-1) {
+      uiArgs.push('.cache');
+    };
+    uiArgs.push(item);
+  });
+  let fUiPath = path.join(...uiArgs);
+  fs.writeFileSync(fPath, JSON.stringify(compile));
+  fs.writeFileSync(fUiPath, JSON.stringify(ui));
+  event.reply('saveWorkspaceFileDone');
 });
