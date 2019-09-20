@@ -152,8 +152,8 @@ ipcMain.on('saveWorkspaceFile', (event, arg)=>{
     compile
   } = arg;
   let fUiPath = getUiPath(fPath);
-  fs.writeFileSync(fPath, JSON.stringify(compile));
-  fs.writeFileSync(fUiPath, JSON.stringify(ui));
+  fs.writeFileSync(fPath, JSON.stringify(compile, null, 2));
+  fs.writeFileSync(fUiPath, JSON.stringify(ui, null, 2));
   event.reply('saveWorkspaceFileDone');
 });
 
