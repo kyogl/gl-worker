@@ -59,7 +59,7 @@ ipcMain.on('createWorkspace', (event) => {
     };
     config.workspace.push(ws);
     writeConfig(config);
-    let cacheDir = path.join(realPath, './.cache');
+    let cacheDir = path.join(realPath, '.cache');
     fs.exists(cacheDir, (exists)=>{
       if (!exists) {
         fs.mkdirSync(cacheDir);
@@ -109,7 +109,7 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
   } = arg;
   let fName = fileName+'.gl';
   let fPath = path.join(workspacePath, fName);
-  let fUiPath = path.join(workspacePath, './.cache/', fName);
+  let fUiPath = path.join(workspacePath, '.cache', fName);
   fs.writeFileSync(fPath, '');
   fs.writeFileSync(fUiPath, '');
   event.reply('createWorkspaceFileDone');
