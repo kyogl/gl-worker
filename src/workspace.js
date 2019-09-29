@@ -107,7 +107,24 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
   const {
     workspacePath, fileName
   } = arg;
-  let fName = fileName+'.gl';
+  let fName = fileName+'.svp';
+
+  let pathArgs = fName.replace(/\\/g, '/').split('/');
+  let testFpath = workspacePath;
+  let testCacheFpath = path.join(workspacePath, '.cache');
+  _.forEach(pathArgs, (p, index)=>{
+    testFpath = path.join(testFpath, p);
+    testCacheFpath = path.join(testCacheFpath, p);
+    if (index<(pathArgs.length-1)) {
+      if (!fs.existsSync(testFpath)) {
+        fs.mkdirSync(testFpath);
+      };
+      if (!fs.existsSync(testCacheFpath)) {
+        fs.mkdirSync(testCacheFpath);
+      };
+    };
+  });
+
   let fPath = path.join(workspacePath, fName);
   let fUiPath = path.join(workspacePath, '.cache', fName);
   fs.writeFileSync(fPath, '');
@@ -115,13 +132,14 @@ ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
   event.reply('createWorkspaceFileDone');
 });
 
-const getUiPath = function(fPath) {
-  let pathArgs = fPath.replace(/\\/g, '/').split('/');
-  let uiArgs = [];
-  _.forEach(pathArgs, (item, index)=>{
-    if (index==pathArgs.length-1) {
-      uiArgs.push('.cache');
-    };
+const getUiPath = function(arg) {
+  const {
+    workspacePath, fileName
+  } = arg;
+
+  let pathArgs = fileName.replace(/\\/g, '/').split('/');
+  let uiArgs = [workspacePath, '.cache'];
+  _.forEach(pathArgs, item=>{
     uiArgs.push(item);
   });
   return path.join(...uiArgs);
@@ -147,19 +165,25 @@ ipcMain.on('readWorkspaceFile', (event, arg)=>{
 
 ipcMain.on('saveWorkspaceFile', (event, arg)=>{
   const {
-    path: fPath,
+    workspacePath,
+    fileName,
     ui,
     compile
   } = arg;
-  let fUiPath = getUiPath(fPath);
+  let fPath = path.join(workspacePath, fileName);
+  let fUiPath = getUiPath(arg);
   fs.writeFileSync(fPath, JSON.stringify(compile, null, 2));
   fs.writeFileSync(fUiPath, JSON.stringify(ui, null, 2));
   event.reply('saveWorkspaceFileDone');
 });
 
 ipcMain.on('deleteWorkspaceFile', (event, arg)=>{
+  const {
+    workspacePath, fileName
+  } = arg;
+  let fPath = path.join(workspacePath, fileName);
   let fUiPath = getUiPath(arg);
-  fs.unlinkSync(arg);
+  fs.unlinkSync(fPath);
   fs.unlinkSync(fUiPath);
   event.reply('deleteWorkspaceFileDone');
 });
