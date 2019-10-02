@@ -213,3 +213,20 @@ ipcMain.on('deleteWorkspaceFile', (event, arg)=>{
   fs.unlinkSync(fUiPath);
   event.reply('deleteWorkspaceFileDone');
 });
+
+ipcMain.on('renameWorkspaceFile', (event, arg)=>{
+  const {
+    workspacePath, fileName, fileNewName,
+  } = arg;
+  let fPath = path.join(workspacePath, fileName);
+  let fUiPath = getUiPath(arg);
+  let fPathNew = path.join(workspacePath, fileNewName+'.svp');
+  let fUiPathNew = getUiPath({
+    workspacePath,
+    fileName: fileNewName+'.svp'
+  });
+  fs.renameSync(fPath, fPathNew);
+  fs.renameSync(fUiPath, fUiPathNew);
+  const list = getFiles(workspacePath);
+  event.reply('updateWorkspaceFileList', list);
+});
