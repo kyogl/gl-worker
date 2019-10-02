@@ -69,15 +69,18 @@ ipcMain.on('createWorkspace', (event) => {
   };
 });
 
-const getFiles = function (realPath) {
+const getFiles = function (realPath, withUi) {
   let allFiles = [];
   function findFile(realPath) {
     let files = fs.readdirSync(realPath);
     files.forEach(function (item, index) {
       let fPath = path.join(realPath, item);
       let stat = fs.statSync(fPath);
+      if (fPath.indexOf('.git')>0) {
+        return;
+      };
       if (stat.isDirectory() === true) {
-        if (fPath.indexOf('.cache')==(fPath.length-6)) {
+        if (!withUi && fPath.indexOf('.cache')==(fPath.length-6)) {
           return;
         };
         allFiles.push({
@@ -101,6 +104,28 @@ const getFiles = function (realPath) {
 ipcMain.on('getWorkspaceFileList', (event, arg) => {
   const list = getFiles(arg);
   event.reply('updateWorkspaceFileList', list);
+});
+
+ipcMain.on('getWorkspaceFileAndContent', (event, arg) => {
+  const list = getFiles(arg, true);
+  let fileList = _.filter(list, item=>{
+    if (item.type=='dir') {
+      return false;
+    };
+    if (item.path.indexOf('.svp')==(item.path.length-4)) {
+      return true;
+    };
+    return false;
+  });
+  fileList = _.map(fileList, item=>{
+    const str = fs.readFileSync(item.path,'utf-8');
+    const fPath = item.path.replace(arg, '').replace(/\\/g, '/');
+    return {
+      path: fPath,
+      data: str
+    };
+  });
+  event.reply('getWorkspaceFileAndContentDone', fileList);
 });
 
 ipcMain.on('createWorkspaceNewFile', (event, arg)=>{
@@ -157,6 +182,7 @@ ipcMain.on('readWorkspaceFile', (event, arg)=>{
   };
   try {
     let json = JSON.parse(str);
+    json.path = arg.fileName;
     event.reply('readWorkspaceFileDone', json);
   } catch(e) {
     console.log(e);
