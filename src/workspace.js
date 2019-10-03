@@ -170,6 +170,22 @@ const getUiPath = function(arg) {
   return path.join(...uiArgs);
 };
 
+const delDir = function(filePath){
+  let files = [];
+  if (fs.existsSync(filePath)) {
+    files = fs.readdirSync(filePath);
+    files.forEach((file, index) => {
+      let curPath = filePath + "/" + file;
+      if(fs.statSync(curPath).isDirectory()){
+        delDir(curPath); //递归删除文件夹
+      } else {
+        fs.unlinkSync(curPath); //删除文件
+      }
+    });
+    fs.rmdirSync(filePath);
+  };
+};
+
 ipcMain.on('readWorkspaceFile', (event, arg)=>{
   let fUiPath = getUiPath(arg);
   const str = fs.readFileSync(fUiPath,'utf-8');
@@ -209,8 +225,13 @@ ipcMain.on('deleteWorkspaceFile', (event, arg)=>{
   } = arg;
   let fPath = path.join(workspacePath, fileName);
   let fUiPath = getUiPath(arg);
-  fs.unlinkSync(fPath);
-  fs.unlinkSync(fUiPath);
+  if(fs.statSync(fPath).isDirectory()){
+    delDir(fPath);
+    delDir(fUiPath);
+  } else {
+    fs.unlinkSync(fPath);
+    fs.unlinkSync(fUiPath);
+  };
   event.reply('deleteWorkspaceFileDone');
 });
 
