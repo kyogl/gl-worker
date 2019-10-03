@@ -230,3 +230,33 @@ ipcMain.on('renameWorkspaceFile', (event, arg)=>{
   const list = getFiles(workspacePath);
   event.reply('updateWorkspaceFileList', list);
 });
+
+ipcMain.on('installSubgraph', (event, arg)=>{
+  const {
+    workspacePath, subgraphName, list,
+  } = arg;
+  _.forEach(list, item=>{
+    let pathArgs
+    let testFpath
+    let fPath
+    if (item.key.indexOf('/.cache')==0) {
+      pathArgs = item.key.replace('/.cache', '').replace(/\\/g, '/').split('/');
+      testFpath = path.join(workspacePath, '/.cache');
+      fPath = path.join(workspacePath, '/.cache/subgraph/'+subgraphName, item.key.replace('/.cache', ''));
+    } else {
+      pathArgs = item.key.replace(/\\/g, '/').split('/');
+      testFpath = workspacePath;
+      fPath = path.join(workspacePath, '/subgraph/'+subgraphName, item.key);
+    };
+    pathArgs = _.concat('subgraph', subgraphName, pathArgs);
+    _.forEach(pathArgs, (p, index)=>{
+      testFpath = path.join(testFpath, p);
+      if (index<(pathArgs.length-1)) {
+        if (!fs.existsSync(testFpath)) {
+          fs.mkdirSync(testFpath);
+        };
+      };
+    });
+    fs.writeFileSync(fPath, item.value);
+  });
+});
