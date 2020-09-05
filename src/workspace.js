@@ -204,6 +204,7 @@ ipcMain.on('readWorkspaceFile', (event, arg)=>{
     console.log(e);
   }
 });
+console.log('123');
 
 ipcMain.on('saveWorkspaceFile', (event, arg)=>{
   const {
@@ -248,6 +249,23 @@ ipcMain.on('renameWorkspaceFile', (event, arg)=>{
   });
   fs.renameSync(fPath, fPathNew);
   fs.renameSync(fUiPath, fUiPathNew);
+  const list = getFiles(workspacePath);
+  event.reply('updateWorkspaceFileList', list);
+});
+
+ipcMain.on('copyWorkspaceFile', (event, arg)=>{
+  const {
+    workspacePath, fileName, fileNewName,
+  } = arg;
+  let fPath = path.join(workspacePath, fileName);
+  let fUiPath = getUiPath(arg);
+  let fPathNew = path.join(workspacePath, fileNewName+'.svp');
+  let fUiPathNew = getUiPath({
+    workspacePath,
+    fileName: fileNewName+'.svp'
+  });
+  fs.copyFileSync(fPath, fPathNew);
+  fs.copyFileSync(fUiPath, fUiPathNew);
   const list = getFiles(workspacePath);
   event.reply('updateWorkspaceFileList', list);
 });

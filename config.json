@@ -1,16 +1,7 @@
 {
   "workspace": [
     {
-      "path": "C:\\Users\\nsmao\\ali\\test"
-    },
-    {
-      "path": "C:\\Users\\nsmao\\ali\\subtest\\a"
-    },
-    {
-      "path": "C:\\Users\\nsmao\\ali\\subtest\\b"
-    },
-    {
-      "path": "C:\\Users\\nsmao\\ali\\subtest\\c"
+      "path": "/Users/kyo/dev/deno"
     }
   ]
 }
